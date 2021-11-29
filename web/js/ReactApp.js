@@ -220,7 +220,7 @@ const Rubric = ({
     if(rContext[id]) {setOpen(false)} else {setOpen(true)}
   }
 
-  const editing = !mch;
+  const editing = isL && !mch;
 
   return (
     <div className={'rubric-block' + ( sublevel ? ' opening' : '' )}>
