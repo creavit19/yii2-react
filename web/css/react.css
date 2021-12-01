@@ -364,3 +364,7 @@ h4 span {
 .formAtc form textarea {
   flex-grow: 1;
 }
+
+.current-atc {
+  white-space: normal;
+}

@@ -86,6 +86,10 @@ function arrDifference(arrA, arrB) { return arrA.filter(x => !arrB.includes(x)) 
 // Перетин масивів arrA та arrB
 function arrIntersection(arrA, arrB) { return arrA.filter(x => arrB.includes(x)) };
 
+function arrUnion(arrA, arrB) { return [...new Set([...arrA, ...arrB])] };
+
+function arrSimDiff(arrA, arrB) { return arrA.filter(x => !arrB.includes(x)).concat(arrB.filter(x => !arrA.includes(x))) };
+
 const AppContext = React.createContext();
 const RubricContext = React.createContext();
 
@@ -192,9 +196,10 @@ const Rubric = ({
   const choose = () => {
     if(context.choosenRubric != id) {
       const shownRubricsAtc = getShownRubricsIds(context.rubricsData, id);
-      const loadableAtc = arrDifference(shownRubricsAtc, context.loadedAtc);
+      const loadableRubricsAtc = arrDifference(shownRubricsAtc, context.loadedRubricsAtc);
+      console.log(loadableRubricsAtc);
       let loading = {};
-      if (loadableAtc.length > 0) {
+      if (loadableRubricsAtc.length > 0) {
         loading = {
           requestAtc: true,
           action: 'readAtc',
@@ -204,7 +209,7 @@ const Rubric = ({
         ...context,
         choosenRubric: id,
         shownRubricsAtc: shownRubricsAtc,
-        loadableAtc: loadableAtc,
+        loadableRubricsAtc: loadableRubricsAtc,
         ...loading,
       })
     }
@@ -408,7 +413,7 @@ function ConnectAtcAPI() {
           params = {
             ...params,
             method: 'POST',
-            body: JSON.stringify({id_rubrics: context.shownRubricsAtc}),
+            body: JSON.stringify({id_rubrics: context.loadableRubricsAtc}),
             };
           break;
         case 'updateAtc':
@@ -434,14 +439,6 @@ function ConnectAtcAPI() {
             };
           break;
       }
-      
-      const finReq = (data) => {
-        setContext({
-          ...context,
-          requestAtc: false,
-          atcData: data
-        });
-      }
 
       fetch(req, params)
         .then(res => {  
@@ -458,11 +455,11 @@ function ConnectAtcAPI() {
           (result) => {
             switch (context.action) {
               case 'readAtc':
-                const newlyAtc = gluing(context.atcData, result);
                 setContext({
                   ...context,
                   requestAtc: false,
-                  atcData: newlyAtc,
+                  atcData: gluing(context.atcData, result),
+                  loadedRubricsAtc: arrUnion(context.loadedRubricsAtc, context.loadableRubricsAtc),
                 });
                 break;
               case 'updateAtc':
@@ -491,6 +488,8 @@ function ConnectAtcAPI() {
                   rubricsData: rubrics,
                   choosenRubric: null,
                   user: null,
+                  shownRubricsAtc: [],
+                  loadableRubricsAtc: [],
                 });
                 break;
               case 'deleteAtc':
@@ -669,9 +668,9 @@ const App = () => {
                                                 user: null,
                                                 atcData: [],
                                                 idCurrentAtc: null,
-                                                loadedAtc: [],
+                                                loadedRubricsAtc: [],
                                                 shownRubricsAtc: [],
-                                                loadableAtc: [],
+                                                loadableRubricsAtc: [],
                                               })
 
   const onClose = () => {
@@ -965,7 +964,7 @@ const App = () => {
                       </React.Fragment>
                       : null }
                   </h4>
-                  <div class="space">
+                  <div class="space current-atc">
                     <CurrentArticle/>
                   </div>
                 </div>
