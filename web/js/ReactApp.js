@@ -80,6 +80,18 @@ function gluing(wasAtc, newAtc) {
   return answer;
 }
 
+function sortByTitle(atcs){
+  let ans = [...atcs];
+  ans.sort(function(a, b) {
+      let tA=a.title.toLowerCase(), tB=b.title.toLowerCase();
+      if (tA < tB) return -1;
+      if (tA > tB)  return 1;
+      return 0;
+    }
+  )
+  return ans;
+}
+
 // Віднімаємо масив arrB від массиву arrA
 function arrDifference(arrA, arrB) { return arrA.filter(x => !arrB.includes(x)) };
 
@@ -458,7 +470,7 @@ function ConnectAtcAPI() {
                 setContext({
                   ...context,
                   requestAtc: false,
-                  atcData: gluing(context.atcData, result),
+                  atcData: sortByTitle(gluing(context.atcData, result)),
                   loadedRubricsAtc: arrUnion(context.loadedRubricsAtc, context.loadableRubricsAtc),
                 });
                 break;
@@ -468,7 +480,7 @@ function ConnectAtcAPI() {
                 setContext({
                   ...context,
                   requestAtc: false,
-                  atcData: updAtc,
+                  atcData: sortByTitle(updAtc),
                 });
                 break;
               case 'addAtc':
@@ -483,7 +495,7 @@ function ConnectAtcAPI() {
                 setContext({
                   ...context,
                   requestAtc: false,
-                  atcData: addedAtc,
+                  atcData: sortByTitle(addedAtc),
                   idCurrentAtc: result.id,
                   rubricsData: rubrics,
                   choosenRubric: null,
